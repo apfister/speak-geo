@@ -48,31 +48,11 @@ define(
         });
         mapView.popup.anchor = "top";
 
-        // Scene
-        // mapScene = new Map({
-        //   basemap: "streets"`
-        // });
-        // sceneView = new SceneView({
-        //   container: "sceneViewDiv",
-        //   map: mapScene,
-        //   center: [-118, 34],
-        //   zoom: 4
-        // });
-        // sceneView.popup.anchor = "top";
-
         activeView = mapView;
 
         // Search
         searchDivNav = this.createSearchWidget("searchNavDiv");
-        // searchWidgetPanel = this.createSearchWidget("searchDivPanel");
 
-        // query("li a[data-toggle='tab']").on("click", function(e) {
-        //   if (e.target.text === "Map") {
-        //     activeView = mapView;                    
-        //   } else {
-        //     activeView = sceneView;
-        //   }
-        // });
 
         query("#selectBasemapPanel").on("change", function(e){
           map.basemap = e.target.options[e.target.selectedIndex].dataset.vector;
@@ -91,14 +71,6 @@ define(
       },
 
       createSearchWidget: function (parentId) {
-        var template = new PopupTemplate({
-          title: "<p>{Match_addr}</p>", //description is the text in the popup. {fieldName} can be used to reference the value of the selected feature
-          description: "<p><b> Marriage Rate: {MARRIEDRATE}% </b></p>" +
-            "<p> Married: {MARRIED_CY}</p>" +
-            "<p> Never Married: {NEVMARR_CY}</p>" +
-            "<p> Divorced: {DIVORCD_CY}</p>"
-        });
-
         var search = new Search({
           view: activeView,
           enableHighlight: false
