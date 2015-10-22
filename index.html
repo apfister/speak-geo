@@ -1,132 +1,185 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!--The viewport meta tag is used to improve the presentation and behavior of the samples 
-      on iOS devices-->
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
-    <title>Find Address</title>
-    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
-    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="description" content="Calcite-Maps Demo - ArcGIS">
+    <meta name="author" content="">
+    <link rel="icon" href="http://www.esri.com/favicon.ico">
+    <title>Speak Geo</title>
+
+    <!-- Calcite-Bootstrap -->
+    <link rel="stylesheet" href="http://esri.github.io/calcite-bootstrap/assets/css/calcite-bootstrap.css">
+
+    <!-- Calcite-Maps -->
+    <link rel="stylesheet" href="http://arcgis.github.io/calcite-maps/css/calcite-maps.css">
+    <link rel="stylesheet" href="http://arcgis.github.io/calcite-maps/css/calcite-maps-arcgis.css">
+    <link rel="stylesheet" href="http://arcgis.github.io/calcite-maps/css/themes/themes.css">
+
+    <!-- ArcGIS JS 4.0 -->
+    <link rel="stylesheet" href="http://js.arcgis.com/4.0beta1/esri/css/esri.css">
+    <link rel="stylesheet" href="http://arcgis.github.io/calcite-maps/apps/css/calcite-dojo-4.0.css">
 
     <style>
-      html, body { height: 100%; width: 100%; margin: 0; padding: 0; } 
-      #map { 
-        padding: 0;
-        border: solid 2px #666;
-        margin: 0 5px 5px 5px;
-      }
-      #header {
-        border: solid 2px #666;
-        color: #666;
-        font-family: sans-serif;
-        font-size: 1.1em;
-        height: auto;
-        margin: 5px;
-        overflow: hidden;
-        padding: 10px 0 10px 20px;
-        text-align:left; 
-      }
-      .roundedCorners {
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-      }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
     </style>
+</head>
 
-    <script src="http://js.arcgis.com/3.14/"></script>
-    <script>
-      var map;
-      require([
-        "esri/map", "esri/tasks/locator", "esri/graphic",
-        "esri/geometry/webMercatorUtils",
-        "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
-        "esri/InfoTemplate", "esri/Color",
-        "dojo/number", "dojo/parser", "dojo/dom", "dijit/registry",
+<body class="calcite-maps map-position-absolute nav-position-top nav-space-top zoom-top-left">
 
-        "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"
-      ], function(
-        Map, Locator, Graphic,
-        webMercatorUtils,
-        SimpleMarkerSymbol, SimpleLineSymbol,
-        InfoTemplate, Color,
-        number, parser, dom, registry
-      ) {
-        parser.parse();
+    <!-- Navbar -->
 
-        map = new Map("map", { 
-          basemap: "streets", 
-          center: [-95.273, 38.95],
-          zoom: 14
-        });
+    <nav class="navbar navbar-dark navbar-fixed-top dark-blue">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mainNav" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                </a>
+                <div class="navbar-info">
+                    <div class="navbar-title text-overflow" data-toggle="modal" data-target="#modalSplash">Speak Geo</div>
+                    <div class="navbar-subtitle text-overflow">Experiment in Geocoding and Browser Audio</div> 
+                </div>
+            </div>
+            <!-- Navbar collapse -->
+            <div id="mainNav" class="collapse navbar-collapse" aria-expanded="false">
+                <ul class="nav navbar-nav navbar-right">                    
+                   <!-- Map and Scene -->
+                    <!-- <li class="active" data-tooltip="tip" title="2D View"><a id="mapNav" class="hidden-xs hidden-sm" href="#2dTab" aria-controls="2Dtab" aria-expanded="true" role="tab" data-toggle="tab">Map</a></li> -->
+                    <!-- <li data-tooltip="tip" title="3D View"><a id="sceneNav" class="hidden-xs hidden-sm" href="#3dTab" aria-controls="3Dtab" role="tab" data-toggle="tab">Scene</a></li>  -->                 
+                    <li><form id="searchNav" class="navbar-form navbar-search hidden-xs visible-sm visible-md visible-lg"><div id="searchNavDiv"></div></form></li>
+                    <!-- Options dropdown menu -->
+                    <li class="dropdown" role="presentation">
+                        <a class="dropdown-toggle hidden-xs" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span></a>
+                        <ul class="dropdown-menu">
+                           <!--  <li><a class="hidden-xs visible-sm hidden-md hidden-lg" href="#2dTab" aria-controls="2Dtab" role="tab" data-toggle="tab">Map</a></li> -->
+                           <!--  <li><a class="hidden-xs visible-sm hidden-md hidden-lg" href="#3dTab" aria-controls="3Dtab" role="tab" data-toggle="tab">Scene</a></li> -->
+                            <li><a role="button" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-info-sign"></span> Info</a></li>
+                            <li><a class="visible-xs" role="button" data-target="#panelSearch" aria-haspopup="true"><span class="glyphicon glyphicon-search"></span> Search</a></li>
+                            <li><a role="button" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
+                         </ul>
+                    </li>      
+                </ul><!--/.nav -->
+            </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+    </nav><!--/.navbar -->
 
-        var locator = new Locator("http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer");
+    <!-- Map Container  -->
 
-        var infoTemplate = new InfoTemplate("Location", "Address: ${Address}");
-        var symbol = new SimpleMarkerSymbol(
-          SimpleMarkerSymbol.STYLE_CIRCLE, 
-          15, 
-          new SimpleLineSymbol(
-            SimpleLineSymbol.STYLE_SOLID, 
-            new Color([0, 0, 255, 0.5]), 
-            8
-          ), 
-          new Color([0, 0, 255])
-        );
+    <div class="map-container">
+        <div id="tabContainer" class="tab-content">
+            <div id="2dTab" class="tab-pane fade in active" role="tabpanel">
+                <div id="mapViewDiv" class="map-position-absolute"></div>
+            </div>
+            <!-- <div id="3dTab" class="tab-pane fade" role="tabpanel">
+                <div id="sceneViewDiv" class="map-position-absolute"></div>
+            </div> -->
+        </div>
+    </div><!-- /.container -->
 
-        locator.on("location-to-address-complete", function(evt) {
-          if (evt.address.address) {
-            var address = evt.address.address;
-            var location = webMercatorUtils.geographicToWebMercator(evt.address.location);
-            //this service returns geocoding results in geographic - convert to web mercator to display on map
-            // var location = webMercatorUtils.geographicToWebMercator(evt.location);
-            var graphic = new Graphic(location, symbol, address, infoTemplate);
-            map.graphics.add(graphic);
-            
-            map.infoWindow.setTitle(graphic.getTitle());
-            map.infoWindow.setContent(graphic.getContent());
-            
-            //display the info window with the address information
-            var screenPnt = map.toScreen(location);
-            map.infoWindow.resize(200,100);
-            map.infoWindow.show(screenPnt, map.getInfoWindowAnchor(screenPnt));
-            
-            if ('speechSynthesis' in window) {
-              console.debug(address);
-              var utterance = new SpeechSynthesisUtterance(address.Address);
-              utterance.lang = 'en-US';
-              window.speechSynthesis.speak(utterance);
-            }
-          }
-        });
+    <!-- Panel -->
 
-        map.on("click", function(evt) {
-          map.graphics.clear();
-          locator.locationToAddress(webMercatorUtils.webMercatorToGeographic(evt.mapPoint), 100);
-        });
-      });
+    <div class="panel-container">
+        <div id="panelAccordion" class="panel-group"  role="tablist" aria-multiselectable="true">
+
+            <!-- Info Panel -->
+
+             <div id="panelInfo" class="panel panel-default collapse">
+                <div id="headingInfo" class="panel-heading" role="tab">
+                    <div class="panel-title">
+                        <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo" data-parent="#panelAccordion" aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Info</a>
+                        <a class="panel-close" role="button" data-toggle="collapse" data-target="#panelInfo"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>  
+                    </div>
+                </div>
+                <div id="collapseInfo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingInfo">
+                    <div class="panel-body">
+                        <p>This is super simple but awesome map of Los Angeles. Try the 2D and 3D view. Change basemaps. Or just search and explore for your favorite places around town.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Panel -->
+
+            <div id="panelSearch" class="panel panel-default collapse">
+                <div id="headingSearch" class="panel-heading" role="tab">
+                    <div class="panel-title">
+                        <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseSearch" data-parent="#panelAccordion" aria-expanded="false" aria-controls="collapseSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search</a>
+                        <a class="panel-close" role="button" data-toggle="collapse" data-target="#panelSearch"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>        
+                    </div>
+                </div>
+                <div id="collapseSearch" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSearch">
+                    <div class="panel-body"> 
+                        <div id="searchDivPanel"></div>
+                  </div>
+                </div>
+            </div>
+
+            <!-- Basemaps Panel -->
+
+            <div id="panelBasemaps" class="panel panel-default collapse"> 
+                <div id="headingBasemaps" class="panel-heading" role="tab">
+                    <div class="panel-title">
+                        <a class="panel-toggle collapsed" role="button" data-toggle="collapse" href="#collapseBasemaps" aria-expanded="false" data-parent="#panelAccordion"  aria-controls="collapseBasemaps"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span> Basemaps</a>
+                        <a class="panel-close" role="button" data-toggle="collapse" data-target="#panelBasemaps"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>  
+                    </div>
+                </div>
+                <div id="collapseBasemaps" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingBasemaps">
+                    <div class="panel-body">
+                        <select id="selectBasemapPanel" class="form-control">
+                            <option value="streets" data-vector="vector-streets">Streets</option>
+                            <option value="satellite" data-vector="satellite">Satellite</option>
+                            <option value="hybrid" data-vector="hybrid">Hybrid</option>
+                            <option value="national-geographic" data-vector="national-geographic">National Geographic</option>
+                            <option value="topo" data-vector="vector-streets-relief">Topographic</option>
+                            <option value="gray" data-vector="vector-canvas-light">Gray</option>
+                            <option value="dark-gray" data-vector="vector-canvas-dark">Dark Gray</option>
+                            <option value="osm" data-vector="vector-streets">Open Street Map</option>
+                            <option value="dark-gray" data-vector="vector-streets-night">Streets Night</option>
+                            <option value="streets" data-vector="vector-streets-mobile">Streets Mobile</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- /.panel-group -->
+    </div> <!-- /.panel-container -->
+
+    <script type="text/javascript">
+        var dojoConfig = {
+            packages: [{
+                name: "bootstrap",
+                location: "//rawgit.com/xsokev/Dojo-Bootstrap/master"
+            },
+            {
+                name: "calcite-maps",
+                location: "//arcgis.github.io/calcite-maps/js/dojo"
+            },
+            {
+                name: "application",
+                location: "/js"
+            }]
+        };
     </script>
-  </head>
-  <body class="claro">
-    <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" 
-         data-dojo-props="design:'headline', gutters:false" 
-         style="width:100%; height:100%;">
 
-      <div id="header" class="roundedCorners" 
-           data-dojo-type="dijit/layout/ContentPane" 
-           data-dojo-props="region:'top'">
+    <!-- ArcGIS JS 4.0 -->
+    <script src="//js.arcgis.com/4.0beta1/"></script>
 
-        <span>Click the map to get the address for the input location. Then the Web Speech API should speak the address to you (turn your volume up!).</span> 
-        <br>
-        <span>Only works in Google Chrome at the moment</span>    
+    <script>
+    require(['application/main'], function (Main) {
+      var app = new Main();
+      app.startup();
+    })
+    </script>
 
-      </div>
-
-      <div id="map" class="roundedCorners" 
-           data-dojo-type="dijit/layout/ContentPane" 
-           data-dojo-props="region:'center'">
-      </div>
-
-    </div>
-  </body>
+    <script src="http://code.responsivevoice.org/responsivevoice.js"></script>
+</body>
 </html>
