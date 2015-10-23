@@ -27,6 +27,58 @@
             padding: 0;
             height: 100%;
         }
+        .info {
+          font-size: 18px;
+        }
+        .esriPopup .contentPane {
+          padding-top: 10px;
+        }
+
+        .dark-blue-75 {
+          background-color: rgba(25, 111, 166, 0.75);
+        }
+
+        #bars {
+            display: none;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: 30px;
+            width: 40px;
+            margin: 15px;
+            padding-left: 10px;
+        }
+
+        .bar {
+           background: #666;
+            bottom: 1px;
+            height: 3px;
+            position: absolute;
+            width: 3px;      
+            animation: sound 0ms -800ms linear infinite alternate;
+        }
+
+        @keyframes sound {
+            0% {
+               opacity: .35;
+                height: 3px; 
+            }
+            100% {
+                opacity: 1;       
+                height: 28px;        
+            }
+        }
+
+        .bar:nth-child(1)  { left: 1px; animation-duration: 474ms; }
+        .bar:nth-child(2)  { left: 5px; animation-duration: 433ms; }
+        .bar:nth-child(3)  { left: 9px; animation-duration: 407ms; }
+        .bar:nth-child(4)  { left: 13px; animation-duration: 458ms; }
+        .bar:nth-child(5)  { left: 17px; animation-duration: 400ms; }
+        .bar:nth-child(6)  { left: 21px; animation-duration: 427ms; }
+        .bar:nth-child(7)  { left: 25px; animation-duration: 441ms; }
+        .bar:nth-child(8)  { left: 29px; animation-duration: 419ms; }
+        .bar:nth-child(9)  { left: 33px; animation-duration: 487ms; }
+        .bar:nth-child(10) { left: 37px; animation-duration: 442ms; }​
     </style>
 </head>
 
@@ -34,7 +86,7 @@
 
     <!-- Navbar -->
 
-    <nav class="navbar navbar-dark navbar-fixed-top dark-blue">
+    <nav class="navbar navbar-dark navbar-fixed-top dark-blue-75">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mainNav" aria-expanded="false">
@@ -48,7 +100,7 @@
                 </a>
                 <div class="navbar-info">
                     <div class="navbar-title text-overflow" data-toggle="modal" data-target="#modalSplash">Speak Geo</div>
-                    <div class="navbar-subtitle text-overflow">Experiment in Geocoding and Browser Audio</div> 
+                    <div class="navbar-subtitle text-overflow">Let the map do the talking!</div> 
                 </div>
             </div>
             <!-- Navbar collapse -->
@@ -64,7 +116,7 @@
                         <ul class="dropdown-menu">
                            <!--  <li><a class="hidden-xs visible-sm hidden-md hidden-lg" href="#2dTab" aria-controls="2Dtab" role="tab" data-toggle="tab">Map</a></li> -->
                            <!--  <li><a class="hidden-xs visible-sm hidden-md hidden-lg" href="#3dTab" aria-controls="3Dtab" role="tab" data-toggle="tab">Scene</a></li> -->
-                            <li><a role="button" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-info-sign"></span> Info</a></li>
+                            <li><a role="button" data-target="#panelInfo" aria-haspopup="true"><span class="glyphicon glyphicon-info-sign"></span> About</a></li>
                             <li><a class="visible-xs" role="button" data-target="#panelSearch" aria-haspopup="true"><span class="glyphicon glyphicon-search"></span> Search</a></li>
                             <li><a role="button" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
                          </ul>
@@ -93,16 +145,16 @@
 
             <!-- Info Panel -->
 
-             <div id="panelInfo" class="panel panel-default collapse">
+             <div id="panelInfo" class="panel panel-default collapse in">
                 <div id="headingInfo" class="panel-heading" role="tab">
                     <div class="panel-title">
-                        <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo" data-parent="#panelAccordion" aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Info</a>
+                        <a class="panel-toggle" role="button" data-toggle="collapse" href="#collapseInfo" data-parent="#panelAccordion" aria-expanded="true" aria-controls="collapseInfo"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> About</a>
                         <a class="panel-close" role="button" data-toggle="collapse" data-target="#panelInfo"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>  
                     </div>
                 </div>
-                <div id="collapseInfo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingInfo">
+                <div id="collapseInfo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingInfo">
                     <div class="panel-body">
-                        <p>This is super simple but awesome map of Los Angeles. Try the 2D and 3D view. Change basemaps. Or just search and explore for your favorite places around town.</p>
+                        <p><div class="info">Click on the map or search for places around the world!</div></p>
                     </div>
                 </div>
             </div>
@@ -194,6 +246,7 @@
           "dojo/_base/declare",
           "dojo/_base/lang",
           "dojo/dom-construct",
+          "dojo/dom-style",
 
           "bootstrap/Collapse", 
           "bootstrap/Dropdown",
@@ -213,7 +266,8 @@
           query,
           declare,
           lang,
-          domConstruct
+          domConstruct,
+          domStyle
 
           ) { 
             // Map 
@@ -237,8 +291,22 @@
             map.basemap = e.target.options[e.target.selectedIndex].dataset.vector;
           });
 
+          var strBars="";
+          strBars += "<div id=\"bars\">";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "              <div class=\"bar\"><\/div>";
+          strBars += "          <\/div>";
+
           var holder = query('.actionsPane')[0];
-          var newAction = domConstruct.toDom('<div class="actionList"><a title="Speak" to="" class="action actionSpeak" href="javascript:void(0);"><span>Speak</span></a></div>');
+          var newAction = domConstruct.toDom('<div class="actionList"><a title="Speak" to="" class="action actionSpeak" href="javascript:void(0);"><span>Speak Again</span></a></div>' + strBars);
           domConstruct.place(newAction, holder, 'last');
 
           query('.actionSpeak').on('click', speakAddress);
@@ -253,11 +321,12 @@
                 if (response.address && response.address.Address) {
                   me.addressToSpeak = response.address.Match_addr;
                   popup.setContent(me.addressToSpeak);
-                  popup.show(evt.mapPoint);   
+                  popup.show(evt.mapPoint);  
+                  speakAddress();
                 }
               });
           });
-          
+
           function createSearchWidget(parentId) {
             search = new Search({
               view: activeView,
@@ -277,14 +346,29 @@
               if (response.results[0].length > 0) {
                 var address = response.results[0][0].feature.attributes['Match_addr'];
                 me.addressToSpeak = address;
+                speakAddress();
               }
             });
             return search;
           }
 
-          function speakAddress() {
-            responsiveVoice.speak(addressToSpeak || 'no address found!'); 
+          var params = {
+              onstart: voiceStartCallback,
+              onend: voiceEndCallback
           }
+
+          function speakAddress() {
+            responsiveVoice.speak(addressToSpeak || 'no address found!', "UK English Female", params); 
+          }
+
+          function voiceStartCallback() {
+              domStyle.set("bars", "display", "block");
+          }
+           
+          function voiceEndCallback() {
+              domStyle.set("bars", "display", "none");
+          }
+           
         });
     </script>
 
